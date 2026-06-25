@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌊 Summer Glow Up Calendar</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#FFF0F8;min-height:100vh}
+
+.page-header{
+  background:linear-gradient(135deg,#FF85C2 0%,#FFB3D9 25%,#A8D8FF 60%,#7EC8FF 100%);
+  padding:2rem 1.5rem 2.5rem;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.page-header::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(circle at 20% 50%,rgba(255,255,255,0.3) 0%,transparent 50%),
+             radial-gradient(circle at 80% 20%,rgba(255,255,255,0.25) 0%,transparent 40%);
+}
+.header-deco{position:absolute;font-size:60px;opacity:.15;pointer-events:none}
+.header-deco.d1{top:-10px;left:2%;transform:rotate(-15deg)}
+.header-deco.d2{top:5px;right:5%;transform:rotate(10deg)}
+.header-deco.d3{bottom:-5px;left:20%;transform:rotate(5deg)}
+.header-deco.d4{bottom:-5px;right:20%;transform:rotate(-8deg)}
+.header-inner{position:relative;z-index:1}
+.main-title{font-size:2.2rem;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(180,60,120,0.3);letter-spacing:-0.5px;margin-bottom:4px}
+.main-subtitle{font-size:1rem;color:rgba(255,255,255,0.9);font-weight:500;margin-bottom:1.25rem}
+
+.stats-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:.5rem}
+.stat-pill{background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);border-radius:50px;padding:10px 18px;min-width:150px;text-align:center;box-shadow:0 2px 12px rgba(180,60,120,0.15)}
+.stat-emoji{font-size:1.1rem}
+.stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#888;margin:2px 0}
+.stat-val{font-size:1.3rem;font-weight:700;margin-bottom:3px}
+.stat-sub{font-size:10px;color:#aaa}
+.pil .stat-val{color:#E0397A}
+.wk .stat-val{color:#FF7A1A}
+.tot .stat-val{color:#3D8FE0}
+.prog-bar{height:5px;border-radius:3px;background:#F0E0EA;overflow:hidden;margin-top:4px}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s ease}
+.pil .prog-fill{background:linear-gradient(90deg,#FF85C2,#E0397A)}
+.wk .prog-fill{background:linear-gradient(90deg,#FFB347,#FF7A1A)}
+.tot .prog-fill{background:linear-gradient(90deg,#7EC8FF,#3D8FE0)}
+
+.cal-body{max-width:1100px;margin:0 auto;padding:1.5rem}
+.week-section{margin-bottom:1.25rem}
+.week-label-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:2px}
+.day-head{text-align:center;font-size:10px;font-weight:700;color:#C070A0;text-transform:uppercase;letter-spacing:.5px;padding:3px 0}
+.week-title{font-size:11px;font-weight:700;color:#C070A0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;padding-left:2px}
+.cal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+
+.day-cell{border-radius:10px;padding:6px 5px;min-height:138px;position:relative;display:flex;flex-direction:column;gap:3px;border:1.5px solid transparent}
+.day-cell.normal{background:#FFF5FB;border-color:#F5C2E0}
+.day-cell.beach{background:#E3F6FF;border-color:#90D5F5}
+.day-cell.nash{background:#EDE0FF;border-color:#C4A8F5}
+.day-cell.fourth{background:#E3F6FF;border-color:#90D5F5;position:relative;overflow:hidden}
+.day-cell.fourth::before{content:'🎆🇺🇸🎇';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;opacity:.13;pointer-events:none;z-index:0;white-space:nowrap}
+.day-cell.fourth > *{position:relative;z-index:1}
+.day-cell.empty{background:transparent;border-color:transparent;min-height:80px}
+
+.day-num{font-size:11px;font-weight:700;color:#666;margin-bottom:1px}
+.fourth-stars{font-size:11px;text-align:center;margin-bottom:2px;letter-spacing:3px}
+
+.pilates-block{background:#FFE8F3;border:1.5px solid #FF85C2;border-radius:7px;padding:3px 5px;cursor:pointer;transition:background .15s,opacity .15s;user-select:none}
+.pilates-block:hover{background:#FFD0E8}
+.pilates-block.done{background:#E0397A;border-color:#B02060;opacity:.85}
+.pilates-block.done .pb-txt{color:#fff;text-decoration:line-through}
+.pb-txt{font-size:10px;color:#CC2070;font-weight:600}
+
+.crunch-block{border:2px dashed #FF8C42;border-radius:7px;padding:3px 5px;cursor:grab;user-select:none;touch-action:none;transition:background .15s,opacity .15s}
+.crunch-block:hover{background:#FFE4CC}
+.crunch-block.done{background:#FF7A1A;border-style:solid;border-color:#CC5500}
+.crunch-block.done .cb-txt{color:#fff;text-decoration:line-through}
+.crunch-block.dragging{opacity:.3;cursor:grabbing}
+.cb-txt{font-size:10px;color:#CC5500;font-weight:600}
+
+.drop-slot{border:1.5px dashed #FFB080;border-radius:7px;padding:3px 5px;min-height:26px;font-size:9px;color:#FFB080;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;cursor:default}
+.drop-slot.dragover{background:#FFF0E0;border-color:#FF8C42;color:#FF8C42}
+.day-cell.dragover-cell{box-shadow:0 0 0 2px #FF8C42 inset}
+
+.work-tag{font-size:9px;color:#777;background:#F5F0FF;border-radius:4px;padding:2px 5px;margin-top:2px;line-height:1.35;word-break:break-word}
+.fourth .work-tag{background:#D8F0FF;color:#2266AA}
+.beach .work-tag{background:#D8F0FF;color:#2266AA}
+.nash .work-tag{background:#E8DEFF;color:#6633AA}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:11px;color:#888;margin:1rem 0 .5rem;padding:0 1rem}
+.leg-item{display:flex;align-items:center;gap:5px}
+.leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+
+@media(max-width:700px){
+  .main-title{font-size:1.3rem}
+  .main-subtitle{font-size:.8rem}
+  .stats-row{gap:6px}
+  .stat-pill{min-width:calc(50% - 6px);padding:8px 10px;border-radius:16px}
+  .stat-pill.tot{min-width:100%}
+  .cal-body{padding:.5rem}
+  .week-label-row,.cal-row{gap:2px}
+  .day-cell{min-height:100px;padding:4px 3px;border-radius:7px}
+  .day-head{font-size:8px;padding:2px 0}
+  .week-title{font-size:10px}
+  .day-num{font-size:9px}
+  .pb-txt,.cb-txt{font-size:9px}
+  .work-tag{font-size:8px;padding:1px 3px}
+  .drop-slot{font-size:8px;min-height:22px}
+  .fourth-stars{font-size:9px}
+  .legend{font-size:10px;gap:8px}
+}
+.crunch-block.tap-selected{outline:3px solid #FF8C42;outline-offset:1px;background:#FFE4CC;animation:pulse .6s infinite alternate}
+@keyframes pulse{from{outline-color:#FF8C42}to{outline-color:#FFB347}}
+.drop-slot.tap-ready{border-color:#FF8C42;background:#FFF0E0;color:#FF8C42;font-weight:700}
+.day-cell.tap-ready{box-shadow:0 0 0 2px #FF8C42 inset}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-deco d1">🌊</div>
+  <div class="header-deco d2">☀️</div>
+  <div class="header-deco d3">🌸</div>
+  <div class="header-deco d4">🐚</div>
+  <div class="header-inner">
+    <div class="main-title">🌊 Summer Glow Up Calendar ☀️</div>
+    <div class="main-subtitle">June 23 – July 17 · Pilates by Izzy 25-Day Challenge + Crunch</div>
+    <div class="stats-row">
+      <div class="stat-pill pil">
+        <div class="stat-emoji">🧘</div>
+        <div class="stat-label">Pilates Challenge</div>
+        <div class="stat-val" id="pilates-count">0 / 25</div>
+        <div class="stat-sub">days completed</div>
+        <div class="prog-bar"><div class="prog-fill" id="pilates-bar" style="width:0%"></div></div>
+      </div>
+      <div class="stat-pill wk">
+        <div class="stat-emoji">🔥</div>
+        <div class="stat-label">Crunch This Week</div>
+        <div class="stat-val" id="crunch-week-count">0 / 3</div>
+        <div class="stat-sub" id="crunch-week-label">current week</div>
+        <div class="prog-bar"><div class="prog-fill" id="crunch-week-bar" style="width:0%"></div></div>
+      </div>
+      <div class="stat-pill tot">
+        <div class="stat-emoji">💪</div>
+        <div class="stat-label">Crunch Overall</div>
+        <div class="stat-val" id="crunch-total-count">0 / 12</div>
+        <div class="stat-sub">total sessions</div>
+        <div class="prog-bar"><div class="prog-fill" id="crunch-total-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cal-body">
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#E0397A"></div>Pilates — click to complete</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#FF8C42;border-radius:2px"></div>Crunch — tap to select, tap target to move · tap again to complete</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#E3F6FF;border:1px solid #90D5F5"></div>Beach week</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#EDE0FF;border:1px solid #C4A8F5"></div>Nashville</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#FFF0F0;border:2px solid #CC2222"></div>4th of July 🇺🇸</div>
+  </div>
+  <div id="cal-container"></div>
+</div>
+
+<script>
+const WORK = {
+  '2025-06-22': 'Off',
+  '2025-06-23': 'Office 10–5',
+  '2025-06-24': 'Office 10–5, concert in Hershey at night 🎵',
+  '2025-06-25': 'Office 10–5, field 6–8:30p',
+  '2025-06-26': 'Off',
+  '2025-06-27': 'Field 10–4:15',
+  '2025-06-28': '9–12 PSC, 5–6:45 PDA field',
+  '2025-06-29': 'WFH, PSC 6–7, Rutgers 7:30–9:15',
+  '2025-06-30': 'Office 10–5, field 7:30–9',
+  '2025-07-01': 'Office 10–5, Staten Island game 5–8:15',
+  '2025-07-02': 'Office 10–5, drive to beach 🏖️',
+  '2025-07-03': '🏖️ Beach',
+  '2025-07-04': '🎆 Beach',
+  '2025-07-05': '🏖️ Beach',
+  '2025-07-06': '🏖️ Beach',
+  '2025-07-07': 'Beach, drive home, Rutgers 6–9:30',
+  '2025-07-08': 'Home, PSC 6–7:30, maybe beach',
+  '2025-07-09': 'Home or beach',
+  '2025-07-10': 'Home/beach, Brooklyn 2–5:30, fly to Nashville ✈️',
+  '2025-07-11': 'Rutgers 10–1:30, Megan Moroney 🎶',
+  '2025-07-12': 'Flight 6–9am → Nashville ✈️',
+  '2025-07-13': 'Nashville 🎸',
+  '2025-07-14': 'Nashville, fly back at night ✈️',
+  '2025-07-15': 'Office 10–5, night TBD',
+  '2025-07-16': 'Office 10–5, night TBD',
+  '2025-07-17': 'Off 🎉',
+};
+
+// All 25 pilates days: Jun 23 – Jul 17
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  return dk(d);
+}
+function dk(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+const PILATES_DAYS = [];
+for (let i = 0; i < 25; i++) PILATES_DAYS.push(addDays('2025-06-23', i));
+
+// Weeks: Mon–Sun, starting June 22
+const WEEKS = [
+  { label: 'Week of Jun 22', days: ['2025-06-22','2025-06-23','2025-06-24','2025-06-25','2025-06-26','2025-06-27','2025-06-28'] },
+  { label: 'Week of Jun 29', days: ['2025-06-29','2025-06-30','2025-07-01','2025-07-02','2025-07-03','2025-07-04','2025-07-05'] },
+  { label: 'Week of Jul 6',  days: ['2025-07-06','2025-07-07','2025-07-08','2025-07-09','2025-07-10','2025-07-11','2025-07-12'] },
+  { label: 'Week of Jul 13', days: ['2025-07-13','2025-07-14','2025-07-15','2025-07-16','2025-07-17','',''] },
+];
+const DAY_HEADS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// Crunch: 3 per week, default days (draggable)
+// Stored as crunchSlots[weekIndex][slotIndex] = dateKey
+const DEFAULT_CRUNCH = [
+  { 0: '2025-06-24', 1: '2025-06-26', 2: '2025-06-28' },
+  { 0: '2025-06-30', 1: '2025-07-02', 2: '2025-07-04' },
+  { 0: '2025-07-07', 1: '2025-07-09', 2: '2025-07-11' },
+  { 0: '2025-07-14', 1: '2025-07-15', 2: '2025-07-17' },
+];
+
+let state = { pilates: {}, crunch: {}, crunchSlots: null };
+try {
+  const saved = localStorage.getItem('summerCal2025v2');
+  if (saved) state = JSON.parse(saved);
+} catch(e) {}
+if (!state.crunchSlots) state.crunchSlots = DEFAULT_CRUNCH.map(w => Object.assign({}, w));
+
+function save() { try { localStorage.setItem('summerCal2025v2', JSON.stringify(state)); } catch(e) {} }
+
+function cellClass(d) {
+  if (!d) return 'empty';
+  if (['2025-07-03','2025-07-04','2025-07-05'].includes(d)) return 'fourth';
+  if (['2025-07-12','2025-07-13','2025-07-14'].includes(d)) return 'nash';
+  if (['2025-07-02','2025-07-03','2025-07-04','2025-07-05','2025-07-06','2025-07-07','2025-07-09'].includes(d)) return 'beach';
+  return 'normal';
+}
+
+function getPilatesDay(d) { const i = PILATES_DAYS.indexOf(d); return i >= 0 ? i+1 : null; }
+
+function getCrunchAt(d) {
+  for (let wi = 0; wi < state.crunchSlots.length; wi++) {
+    const slots = state.crunchSlots[wi];
+    for (let si in slots) {
+      if (slots[si] === d) return { wi, si: parseInt(si) };
+    }
+  }
+  return null;
+}
+
+let dragging = null;
+
+function render() {
+  const c = document.getElementById('cal-container');
+  let h = '';
+  WEEKS.forEach((wk, wi) => {
+    h += `<div class="week-section">`;
+    h += `<div class="week-title">${wk.label}</div>`;
+    h += `<div class="week-label-row">${DAY_HEADS.map(d => `<div class="day-head">${d}</div>`).join('')}</div>`;
+    h += `<div class="cal-row">`;
+    wk.days.forEach(d => {
+      if (!d) { h += `<div class="day-cell empty"></div>`; return; }
+      const cls = cellClass(d);
+      const date = new Date(d + 'T12:00:00');
+      const label = date.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+      const pDay = getPilatesDay(d);
+      const crunch = getCrunchAt(d);
+      const work = WORK[d] || '';
+      h += `<div class="day-cell ${cls}" data-dk="${d}" id="cell-${d}">`;
+      if (cls === 'fourth') h += `<div class="fourth-stars">🎆 🇺🇸 🎇</div>`;
+      h += `<div class="day-num">${label}</div>`;
+      if (pDay) {
+        const done = !!state.pilates[d];
+        h += `<div class="pilates-block${done?' done':''}" onclick="togglePilates('${d}')">`;
+        h += `<div class="pb-txt">${done ? '✓ ' : ''}🧘 Day ${pDay}</div></div>`;
+      }
+      if (crunch !== null) {
+        const done = isCrunchDone(crunch.wi, crunch.si);
+        const key = `${crunch.wi}-${crunch.si}`;
+        const isMob = window.matchMedia && window.matchMedia('(hover: none)').matches;
+        h += `<div class="crunch-block${done?' done':''}" data-wi="${crunch.wi}" data-si="${crunch.si}" id="crunch-${key}"` + (isMob ? '' : ` onclick="toggleCrunch(${crunch.wi},${crunch.si})"`) + `>`;
+        h += `<div class="cb-txt">${done ? '✓ ' : ''}🔥 Crunch</div></div>`;
+      } else if (pDay || PILATES_DAYS.includes(d) || d >= '2025-06-22') {
+        h += `<div class="drop-slot" data-target="${d}">drop crunch here</div>`;
+      }
+      if (work) h += `<div class="work-tag">💼 ${work}</div>`;
+      h += `</div>`;
+    });
+    h += `</div></div>`;
+  });
+  c.innerHTML = h;
+  bindEvents();
+  updateStats();
+}
+
+let tapSelected = null; // {wi, si} of crunch being moved
+
+function clearTapSelection() {
+  tapSelected = null;
+  document.querySelectorAll('.tap-selected,.tap-ready').forEach(el => el.classList.remove('tap-selected','tap-ready'));
+}
+
+function bindEvents() {
+  const isMobile = window.matchMedia('(hover: none)').matches || 'ontouchstart' in window;
+
+  // ── Desktop drag ──
+  if (!isMobile) {
+    document.querySelectorAll('.crunch-block').forEach(el => {
+      el.setAttribute('draggable', 'true');
+      el.addEventListener('dragstart', e => {
+        dragging = { wi: +el.dataset.wi, si: +el.dataset.si };
+        setTimeout(() => el.classList.add('dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      el.addEventListener('dragend', () => { el.classList.remove('dragging'); dragging = null; });
+    });
+    document.querySelectorAll('.drop-slot, .day-cell').forEach(el => {
+      el.addEventListener('dragover', e => {
+        if (!dragging) return; e.preventDefault();
+        el.classList.add(el.classList.contains('drop-slot') ? 'dragover' : 'dragover-cell');
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('dragover','dragover-cell'));
+      el.addEventListener('drop', e => {
+        e.preventDefault(); el.classList.remove('dragover','dragover-cell');
+        if (!dragging) return;
+        const target = el.dataset.target || el.dataset.dk;
+        if (!target) return;
+        const existing = getCrunchAt(target);
+        if (existing && !(existing.wi === dragging.wi && existing.si === dragging.si)) return;
+        state.crunchSlots[dragging.wi][dragging.si] = target;
+        save(); render();
+      });
+    });
+  }
+
+  // ── Mobile tap-to-move ──
+  // Crunch blocks: first tap = select, second tap on same = deselect
+  document.querySelectorAll('.crunch-block').forEach(el => {
+    el.addEventListener('click', e => {
+      if (!isMobile) return; // desktop uses onclick= toggleCrunch directly
+      e.stopPropagation();
+      const wi = +el.dataset.wi, si = +el.dataset.si;
+      if (tapSelected && tapSelected.wi === wi && tapSelected.si === si) {
+        // Tapped same block again = toggle done
+        clearTapSelection();
+        toggleCrunch(wi, si);
+        return;
+      }
+      if (tapSelected) { clearTapSelection(); }
+      // Select this block for moving
+      tapSelected = { wi, si };
+      el.classList.add('tap-selected');
+      // Highlight all valid drop targets
+      document.querySelectorAll('.drop-slot').forEach(s => s.classList.add('tap-ready'));
+      document.querySelectorAll('.day-cell').forEach(c => {
+        if (c.dataset.dk) c.classList.add('tap-ready');
+      });
+    });
+  });
+
+  // Drop slots: tap to place selected crunch
+  document.querySelectorAll('.drop-slot').forEach(el => {
+    el.addEventListener('click', e => {
+      if (!tapSelected) return;
+      e.stopPropagation();
+      const target = el.dataset.target;
+      if (!target) return;
+      const existing = getCrunchAt(target);
+      if (existing && !(existing.wi === tapSelected.wi && existing.si === tapSelected.si)) { clearTapSelection(); return; }
+      state.crunchSlots[tapSelected.wi][tapSelected.si] = target;
+      clearTapSelection();
+      save(); render();
+    });
+  });
+
+  // Day cells: tap to place on a cell that has a drop slot
+  document.querySelectorAll('.day-cell').forEach(el => {
+    el.addEventListener('click', e => {
+      if (!tapSelected || !el.dataset.dk) return;
+      // only if click was directly on cell bg, not a child button
+      if (e.target !== el) return;
+      const target = el.dataset.dk;
+      const existing = getCrunchAt(target);
+      if (existing && !(existing.wi === tapSelected.wi && existing.si === tapSelected.si)) { clearTapSelection(); return; }
+      state.crunchSlots[tapSelected.wi][tapSelected.si] = target;
+      clearTapSelection();
+      save(); render();
+    });
+  });
+
+  // Tap elsewhere to cancel
+  document.addEventListener('click', e => {
+    if (tapSelected && !e.target.closest('.crunch-block,.drop-slot,.day-cell')) clearTapSelection();
+  }, { once: false });
+}
+
+function togglePilates(d) {
+  state.pilates[d] = !state.pilates[d];
+  if (!state.pilates[d]) delete state.pilates[d];
+  save(); render();
+}
+// Store crunch completion keyed by DATE (not slot index) so dragging doesn't break counts
+function crunchDateKey(d) { return `date-${d}`; }
+
+function toggleCrunch(wi, si) {
+  const dateForSlot = state.crunchSlots[wi][si];
+  const key = crunchDateKey(dateForSlot);
+  state.crunch[key] = !state.crunch[key];
+  if (!state.crunch[key]) delete state.crunch[key];
+  save(); render();
+}
+
+function isCrunchDone(wi, si) {
+  const dateForSlot = state.crunchSlots[wi][si];
+  return !!state.crunch[crunchDateKey(dateForSlot)];
+}
+
+// Get Monday of the week containing a given date
+function getMondayOf(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDay(); // 0=Sun,1=Mon,...
+  const diff = (day === 0) ? -6 : 1 - day; // shift to Monday
+  d.setDate(d.getDate() + diff);
+  return dk(d);
+}
+
+function updateStats() {
+  // Pilates
+  const done = PILATES_DAYS.filter(d => state.pilates[d]).length;
+  document.getElementById('pilates-count').textContent = done + ' / 25';
+  document.getElementById('pilates-bar').style.width = ((done/25)*100) + '%';
+
+  // "Active week" = the first calendar week that still has at least one incomplete crunch.
+  // Falls back to the last week if everything is done.
+  let activeWi = WEEKS.length - 1;
+  for (let wi = 0; wi < WEEKS.length; wi++) {
+    const slots = state.crunchSlots[wi] || {};
+    const hasIncomplete = Object.values(slots).some(slotDate => !state.crunch[crunchDateKey(slotDate)]);
+    if (hasIncomplete) { activeWi = wi; break; }
+  }
+
+  // Count how many crunch sessions in that week are done
+  const activeSlots = state.crunchSlots[activeWi] || {};
+  let wDone = 0;
+  for (let si in activeSlots) {
+    if (state.crunch[crunchDateKey(activeSlots[si])]) wDone++;
+  }
+
+  document.getElementById('crunch-week-count').textContent = wDone + ' / 3';
+  document.getElementById('crunch-week-label').textContent = WEEKS[activeWi].label.toLowerCase();
+  document.getElementById('crunch-week-bar').style.width = ((wDone/3)*100) + '%';
+
+  // Total
+  let total = 0;
+  for (let key in state.crunch) { if (state.crunch[key]) total++; }
+  document.getElementById('crunch-total-count').textContent = total + ' / 12';
+  document.getElementById('crunch-total-bar').style.width = ((total/12)*100) + '%';
+}
+
+render();
+</script>
+</body>
+</html>
